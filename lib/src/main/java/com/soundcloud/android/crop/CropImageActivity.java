@@ -336,6 +336,12 @@ public class CropImageActivity extends MonitoredActivity {
 
                 RectF adjusted = new RectF();
                 matrix.mapRect(adjusted, new RectF(rect));
+                
+                if (exifRotation == 90 || exifRotation == 270) {
+                    int temp = outWidth;
+                    outWidth = outHeight;
+                    outHeight = temp;
+                }
 
                 // Adjust to account for origin at 0,0
                 adjusted.offset(adjusted.left < 0 ? width : 0, adjusted.top < 0 ? height : 0);
@@ -347,6 +353,12 @@ public class CropImageActivity extends MonitoredActivity {
                 if (rect.width() > outWidth || rect.height() > outHeight) {
                     Matrix matrix = new Matrix();
                     matrix.postScale((float) outWidth / rect.width(), (float) outHeight / rect.height());
+                    
+                    matrix.postRotate(exifRotation);
+                    croppedImage = Bitmap.createBitmap(croppedImage, 0, 0, croppedImage.getWidth(), croppedImage.getHeight(), matrix, true);
+                } else {
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(exifRotation);
                     croppedImage = Bitmap.createBitmap(croppedImage, 0, 0, croppedImage.getWidth(), croppedImage.getHeight(), matrix, true);
                 }
             } catch (IllegalArgumentException e) {
